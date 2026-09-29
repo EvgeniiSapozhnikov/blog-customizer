@@ -156,5 +156,13 @@ export default defineConfig(
       },
     },
   },
+  {
+    files: ['src/stories/**/*.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
+      'react/no-unescaped-entities': 'off',
+    },
+  },
   eslintPluginPrettierRecommended
 );
