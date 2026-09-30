@@ -7,6 +7,7 @@ import {
   fontSizeOptions,
   type ArticleStateType,
 } from '@/constants/articleProps';
+import { useSidebarOutsideClick } from '@/hooks/useSidebarOutsideClick';
 import { ArrowButton } from '@/ui/arrow-button';
 import { Button } from '@/ui/button';
 import { RadioGroup } from '@/ui/radio-group';
@@ -14,7 +15,7 @@ import { Select } from '@/ui/select';
 import { Separator } from '@/ui/separator';
 import { Text } from '@/ui/text';
 import { clsx } from 'clsx';
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 
 import styles from './ArticleParamsForm.module.scss';
 
@@ -27,9 +28,11 @@ export const ArticleParamsForm = ({
 }: ArticleParamsFormProps): React.JSX.Element => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [formState, setFormState] = useState<ArticleStateType>(defaultArticleState);
+  const [resetKey, setResetKey] = useState(0);
 
-  const sidebarRef = useRef<HTMLElement | null>(null);
-  const arrowButtonRef = useRef<HTMLDivElement | null>(null);
+  const wrapperRef = useSidebarOutsideClick(isSidebarOpen, () =>
+    setIsSidebarOpen(false)
+  );
 
   const handleToggle = (): void => {
     setIsSidebarOpen((prevIsOpen) => !prevIsOpen);
@@ -49,49 +52,18 @@ export const ArticleParamsForm = ({
     onApply(formState);
   };
 
-  const handleReset = (): void => {
+  const handleReset = (event: FormEvent<HTMLFormElement>): void => {
+    event.preventDefault();
     setFormState(defaultArticleState);
     onApply(defaultArticleState);
+    setResetKey((prevKey) => prevKey + 1);
   };
 
-  useEffect(() => {
-    if (!isSidebarOpen) {
-      return;
-    }
-
-    const handleOutsideClick = (event: MouseEvent): void => {
-      if (!(event.target instanceof Node)) {
-        return;
-      }
-
-      const isOutsideSidebar = !sidebarRef.current?.contains(event.target);
-
-      const isOutsideArrowButton = !arrowButtonRef.current?.contains(event.target);
-
-      if (isOutsideSidebar && isOutsideArrowButton) {
-        setIsSidebarOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleOutsideClick);
-
-    return (): void => {
-      document.removeEventListener('mousedown', handleOutsideClick);
-    };
-  }, [isSidebarOpen]);
-
   return (
-    <>
-      <ArrowButton
-        buttonRef={arrowButtonRef}
-        isOpen={isSidebarOpen}
-        onClick={handleToggle}
-      />
+    <div ref={wrapperRef}>
+      <ArrowButton isOpen={isSidebarOpen} onClick={handleToggle} />
 
-      <aside
-        ref={sidebarRef}
-        className={clsx(styles.container, isSidebarOpen && styles.container_open)}
-      >
+      <aside className={clsx(styles.container, isSidebarOpen && styles.container_open)}>
         <form className={styles.form} onSubmit={handleSubmit} onReset={handleReset}>
           <Text as="h2" size={31} weight={800} uppercase>
             Задайте параметры
@@ -106,6 +78,7 @@ export const ArticleParamsForm = ({
             />
 
             <RadioGroup
+              key={resetKey}
               name="fontSize"
               title="Размер шрифта"
               options={fontSizeOptions}
@@ -145,6 +118,6 @@ export const ArticleParamsForm = ({
           </div>
         </form>
       </aside>
-    </>
+    </div>
   );
 };
