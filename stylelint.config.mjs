@@ -288,6 +288,14 @@ const config = {
     'selector-class-pattern':
       '^[a-z][a-zA-Z0-9]*(-[a-zA-Z0-9]+)*(__[a-z0-9]+(-[a-z0-9]+)*)?(_[a-z0-9]+(-[a-z0-9]+)*)?(_[a-z0-9]+(-[a-z0-9]+)*)?$',
   },
+  overrides: [
+    {
+      files: ['src/stories/**/*.{css,scss}'],
+      rules: {
+        'selector-class-pattern': null,
+      },
+    },
+  ],
 };
 
 export default config;

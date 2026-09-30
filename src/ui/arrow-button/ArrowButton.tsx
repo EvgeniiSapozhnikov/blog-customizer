@@ -16,7 +16,6 @@ export const ArrowButton = ({
   onClick,
 }: ArrowButtonProps): React.JSX.Element => {
   return (
-    /* Не забываем указаывать role и aria-label атрибуты для интерактивных элементов */
     <div
       role="button"
       aria-label="Открыть/Закрыть форму параметров статьи"
